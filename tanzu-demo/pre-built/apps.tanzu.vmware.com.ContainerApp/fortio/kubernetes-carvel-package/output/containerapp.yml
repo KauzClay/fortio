@@ -1,0 +1,62 @@
+apiVersion: apps.tanzu.vmware.com/v1
+kind: ContainerApp
+metadata:
+  annotations:
+    apps.tanzu.vmware.com/promotable: ""
+    apps.tanzu.vmware.com/promote-group: ContainerApp/fortio
+    containerapp.apps.tanzu.vmware.com/class: kubernetes
+  name: fortio
+spec:
+  content:
+    buildTimestamp: "2024-06-24T18:28:18Z"
+    gitCommit: 4f3570b9b1929419363e4664b58e8bceffa207b6-dirty
+    gitURL: github.com/fortio/fortio.git
+    packageRefName: fortio.apps.local
+    summary: git:4f3570b @ 2024-06-24T18:28:18Z
+    version: 20240624.1828.18454
+  image: us.gcr.io/daisy-284300/ck/app-fortio@sha256:85ce204c34c0ad2d284f457d060879b2604d66da12a13d9b6d328cf3f8d4cfe9
+  args: ["server", "-config-dir", "/etc/fortio"]
+  ports:
+  - name: main
+    port: 8080
+  relatedRefs:
+  - for: kubernetes.list-replicas
+    kind: Pod
+    labelSelector: containerapp.apps.tanzu.vmware.com/app-name=fortio
+  - apiGroup: apps
+    for: kubernetes.service-binding-target
+    kind: Deployment
+    name: fortio
+  - for: kubernetes.service-target
+    kind: Service
+    name: fortio
+  - for: kubernetes.scale-replicas
+    keyPath: .data['values.yml']->[yaml].replicas
+    kind: Secret
+    name: fortio-values
+  - for: kubernetes.scale-resources
+    keyPath: .data['values.yml']->[yaml].resources
+    kind: Secret
+    name: fortio-values
+  - for: kubernetes.set-secret-env
+    keyPath: .data['values.yml']->[yaml].secretEnv
+    kind: Secret
+    name: fortio-values
+  - apiGroup: packaging.carvel.dev
+    for: kubernetes.delete
+    kind: PackageInstall
+    name: fortio
+  - apiGroup: data.packaging.carvel.dev
+    for: kubernetes.delete
+    kind: Package
+    name: fortio.apps.local.20240624.1828.18454
+  - for: kubernetes.delete
+    kind: Secret
+    name: fortio-values
+  - for: kubernetes.set-content-hash
+    keyPath: .data['values.yml']->[yaml].contentHash
+    kind: Secret
+    name: fortio-values
+  resources:
+    cpu: 300m
+    memory: 1Gi

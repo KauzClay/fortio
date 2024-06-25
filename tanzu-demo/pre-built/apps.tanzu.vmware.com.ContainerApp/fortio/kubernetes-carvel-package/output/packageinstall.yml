@@ -1,0 +1,21 @@
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  annotations:
+    apps.tanzu.vmware.com/promotable: ""
+    apps.tanzu.vmware.com/promote-group: ContainerApp/fortio
+  creationTimestamp: null
+  name: fortio
+spec:
+  packageRef:
+    refName: fortio.apps.local
+    versionSelection:
+      constraints: 20240624.1828.18454
+  serviceAccountName: carvel-package-installer
+  values:
+  - secretRef:
+      name: fortio-values
+status:
+  conditions: null
+  friendlyDescription: ""
+  observedGeneration: 0

@@ -1,0 +1,31 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  annotations:
+    apps.tanzu.vmware.com/promotable: ""
+    apps.tanzu.vmware.com/promote-group: ContainerApp/fortio
+  creationTimestamp: null
+  name: fortio.apps.local.20240624.1828.18454
+spec:
+  refName: fortio.apps.local
+  releasedAt: "2024-06-24T18:30:46Z"
+  template:
+    spec:
+      deploy:
+      - kapp:
+          rawOptions:
+          - --wait=false
+      fetch:
+      - imgpkgBundle:
+          image: us.gcr.io/daisy-284300/ck/app-fortio@sha256:737c15aeab1e51d07a0bf5a5e0cb7f37e66892d356d5631b08f3331dfc2386e8
+      template:
+      - ytt:
+          paths:
+          - config/
+      - kbld:
+          paths:
+          - .imgpkg/images.yml
+          - '-'
+  valuesSchema:
+    openAPIv3: null
+  version: 20240624.1828.18454
