@@ -1,0 +1,41 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@overlay/match by=overlay.subset({"apiVersion": "apps/v1", "kind": "Deployment"})
+---
+spec:
+  #@overlay/match missing_ok=True
+  replicas: #@ data.values.replicas
+  template:
+    metadata:
+      annotations:
+        #@overlay/match missing_ok=True
+        containerapp.apps.tanzu.vmware.com/content-hash: #@ data.values.contentHash
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "workload"})
+      - 
+        #@overlay/match missing_ok=True
+        resources:
+          #@overlay/replace
+          limits: #@ data.values.resources
+          #@overlay/replace
+          requests: #@ data.values.resources
+        #@overlay/match missing_ok=True
+        env:
+        #@ for idx in data.values.secretEnv:
+        #@overlay/match by="name", missing_ok=True
+        #@overlay/replace or_add=True
+        - name: #@ idx.name
+          valueFrom:
+            secretKeyRef:
+              name: #@ idx.secretKeyRef.name
+              key: #@ idx.secretKeyRef.key
+        #@ end
+      #@overlay/match by=overlay.subset({"name": "workload"})
+      - 
+        resources:
+          limits:
+            #@overlay/remove
+            #@overlay/match missing_ok=True
+            cpu:

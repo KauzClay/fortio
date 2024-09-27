@@ -1,3 +1,12 @@
+# Deploying with Tanzu
+
+Whereever it is being deployed to needs registry secret for `tae-docker-virtual.usw1.packages.broadcom.com`.
+
+```
+tanzu deploy --from-build prebuilt
+```
+
+
 <!-- 1.66.5 -->
 # Fortio
 

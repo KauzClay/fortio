@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: fortio
+spec:
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      containerapp.apps.tanzu.vmware.com/app-name: fortio
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 10%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        containerapp.apps.tanzu.vmware.com/content-summary: git:4f3570b @ 2024-06-24T18:28:18Z
+      creationTimestamp: null
+      labels:
+        containerapp.apps.tanzu.vmware.com/app-name: fortio
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - image: us.gcr.io/daisy-284300/ck/app-fortio@sha256:85ce204c34c0ad2d284f457d060879b2604d66da12a13d9b6d328cf3f8d4cfe9
+        args:
+        - "server"
+        - "-config-dir"
+        - "/etc/fortio"
+        imagePullPolicy: IfNotPresent
+        name: workload
+        ports:
+        - containerPort: 8080
+          name: main
+          protocol: TCP
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 300m
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: tanzu-tmp
+      enableServiceLinks: false
+      restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: fortio
+      terminationGracePeriodSeconds: 300
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            containerapp.apps.tanzu.vmware.com/app-name: fortio
+        matchLabelKeys:
+        - pod-template-hash
+        maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+      - labelSelector:
+          matchLabels:
+            containerapp.apps.tanzu.vmware.com/app-name: fortio
+        matchLabelKeys:
+        - pod-template-hash
+        maxSkew: 1
+        topologyKey: topology.kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      volumes:
+      - emptyDir: {}
+        name: tanzu-tmp
+status: {}
